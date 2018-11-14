@@ -32,7 +32,8 @@ firebase.firestore().settings({ timestampsInSnapshots: true });
 // Add BOTH store enhancers when making store creator
 const createStoreWithFirebase = compose(
   reduxFirestore(firebase),
-  reactReduxFirebase(firebase, rrfConfig)
+  reactReduxFirebase(firebase, rrfConfig),
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
 )(createStore);
 
 // Add firebase and firestore to reducers

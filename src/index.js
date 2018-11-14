@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import 'react-datepicker/dist/react-datepicker.css';
 import './index.css';
+import './styles/loading.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 

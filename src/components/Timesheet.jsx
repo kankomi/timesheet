@@ -64,16 +64,19 @@ class Timesheet extends Component {
     let rows = this.state.rows;
     rows[idx][id] = date;
 
-    const { from, to, breakFrom, breakTo } = rows[idx];
+    const { from, to } = rows[idx];
+    const { auth } = this.props;
 
     if (from && to) {
-      rows[idx].total = Math.round(to.diff(from, 'hours', true) * 100) / 100;
+      rows[idx].total = Math.round(to.diff(from, 'hours', true) * 10) / 100;
       // moment.duration(breakTo.diff(breakFrom, 'hours', true));
     }
 
     const entry = objectMap(rows[idx], val => {
       return moment.isMoment(val) ? val.toDate() : val;
     });
+
+    entry.user = auth.uid;
 
     const dbId = this.getValue(this.state.rows[idx].date, 'id');
     if (dbId) {
@@ -102,7 +105,6 @@ class Timesheet extends Component {
     if (vals && vals.length > 0 && vals[0][id]) {
       const obj = vals[0][id];
       if (typeof obj === 'object' && obj.hasOwnProperty('seconds')) {
-        console.log(obj);
         return moment(obj.seconds * 1000);
       }
       return obj;
@@ -190,7 +192,7 @@ class Timesheet extends Component {
     const { currentDate } = this.state;
 
     return (
-      <div className="mt-4">
+      <div className="mt-4 container">
         <div className="container-fluid">
           <div className="row align-items-center">
             <h2 className="col font-weight-light">
@@ -228,9 +230,10 @@ class Timesheet extends Component {
 }
 
 export default compose(
-  firestoreConnect([{ collection: 'timesheet' }]),
+  firestoreConnect((state, props) => [{ collection: 'timesheet' }]),
   connect((state, props) => ({
     timesheet: state.firestore.ordered.timesheet,
+    auth: state.firebase.auth,
     ...{ deleteTime, setTime }
   }))
 )(Timesheet);
