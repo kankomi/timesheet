@@ -38,3 +38,61 @@ code {
   border-radius: 5px;
   background-color: rgba(233, 233, 233, 0.5);
 }
+
+.timesheet-header {
+  border: none;
+  font-size: 1.5rem;
+  border-bottom: 1px solid #ccc;
+}
+
+@media print {
+  input,
+  select {
+    border: none !important;
+  }
+  nav {
+    display: none !important;
+  }
+
+  .dont-print {
+    display: none !important;
+  }
+
+  ::-webkit-input-placeholder {
+    /* WebKit browsers */
+    color: transparent !important;
+  }
+  :-moz-placeholder {
+    /* Mozilla Firefox 4 to 18 */
+    color: transparent !important;
+  }
+  ::-moz-placeholder {
+    /* Mozilla Firefox 19+ */
+    color: transparent !important;
+  }
+  :-ms-input-placeholder {
+    /* Internet Explorer 10+ */
+    color: transparent !important;
+  }
+
+  input::-webkit-input-placeholder {
+    /* WebKit browsers */
+    color: transparent !important;
+  }
+  input:-moz-placeholder {
+    /* Mozilla Firefox 4 to 18 */
+    color: transparent !important;
+  }
+  input::-moz-placeholder {
+    /* Mozilla Firefox 19+ */
+    color: transparent !important;
+  }
+  input:-ms-input-placeholder {
+    /* Internet Explorer 10+ */
+    color: transparent !important;
+  }
+
+  .container {
+    margin: 0 !important;
+  }
+}

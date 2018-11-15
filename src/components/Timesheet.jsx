@@ -29,7 +29,6 @@ class Timesheet extends Component {
   componentDidMount() {
     this.createDays();
   }
-
   createDays = () => {
     const { currentDate } = this.state;
     const curMonth = currentDate.month();
@@ -57,11 +56,23 @@ class Timesheet extends Component {
       from.set('month', to.month());
       from.set('year', to.year());
 
-      const h = Math.round(to.diff(from, 'hours', true) * 100) / 100;
+      let h = Math.round(to.diff(from, 'hours', true) * 100) / 100;
+
+      if (h < 0) {
+        h = 0;
+      }
+
       return `${h} Stunden`;
     }
 
     return '';
+  };
+
+  onCurrentDateChange = date => {
+    date.date(1);
+    this.setState({ ...this.state, currentDate: date }, () =>
+      this.createDays()
+    );
   };
 
   handleChange = async (idx, id, date) => {
@@ -200,9 +211,16 @@ class Timesheet extends Component {
       <div className="mt-4 container">
         <div className="container-fluid">
           <div className="row align-items-center">
-            <h2 className="col font-weight-light">
-              {currentDate.format('MMMM YYYY')}
-            </h2>
+            <div className="col">
+              <DatePicker
+                className="font-weight-light timesheet-header"
+                dateFormat="MMMM YYYY"
+                dateFormatCalendar="MMMM YYYY"
+                onChange={this.onCurrentDateChange}
+                selected={this.state.currentDate}
+                todayButton="Heute"
+              />
+            </div>
             <h5 className="col">Erfassung der Arbeitszeit</h5>
             <h5 className="col">
               Zeitraum: {currentDate.format('01.MM.YYYY')} bis{' '}
