@@ -4,7 +4,7 @@ import DatePicker from 'react-datepicker';
 
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import { firestoreConnect } from 'react-redux-firebase';
+import { firestoreConnect, isLoaded } from 'react-redux-firebase';
 
 import moment from 'moment';
 import 'moment/locale/de';
@@ -53,6 +53,10 @@ class Timesheet extends Component {
     const to = this.getValue(date, 'to');
 
     if (from && to) {
+      from.set('date', to.date());
+      from.set('month', to.month());
+      from.set('year', to.year());
+
       const h = Math.round(to.diff(from, 'hours', true) * 100) / 100;
       return `${h} Stunden`;
     }
@@ -138,6 +142,7 @@ class Timesheet extends Component {
               timeCaption="Zeit"
               placeholderText="HH:mm"
               className="form-control time-input"
+              disabled={!isLoaded()}
             />
           </td>
           <td>
