@@ -80,7 +80,7 @@ class Timesheet extends Component {
     rows[idx][id] = date;
 
     const { from, to } = rows[idx];
-    const { auth } = this.props;
+    const { uid } = this.props;
 
     if (from && to) {
       rows[idx].total = Math.round(to.diff(from, 'hours', true) * 10) / 100;
@@ -91,7 +91,7 @@ class Timesheet extends Component {
       return moment.isMoment(val) ? val.toDate() : val;
     });
 
-    entry.user = auth.uid;
+    entry.uid = uid;
 
     const dbId = this.getValue(this.state.rows[idx].date, 'id');
     if (dbId) {
@@ -129,84 +129,79 @@ class Timesheet extends Component {
   };
 
   renderRows = () => {
-    let rows = [];
     if (!this.state.rows) {
       return;
     }
-    this.state.rows.forEach((row, idx) => {
-      rows.push(
-        <tr key={idx}>
-          <td>
-            <div className="d-flex justify-content-between">
-              <span>{row.date.format('ddd,')}</span>
-              <span>{row.date.format('D. MMM')}</span>
-            </div>
-          </td>
-          <td>
-            <DatePicker
-              selected={this.getValue(row.date, 'from')}
-              onChange={date => this.handleChange(idx, 'from', date)}
-              showTimeSelect
-              showTimeSelectOnly
-              dateFormat="HH:mm"
-              timeFormat="HH:mm"
-              timeCaption="Zeit"
-              placeholderText="HH:mm"
-              className="form-control time-input"
-              disabled={!isLoaded()}
-            />
-          </td>
-          <td>
-            <div className="d-flex align-items-center justify-content-between">
-              <DatePicker
-                selected={this.getValue(row.date, 'breakFrom')}
-                onChange={date => this.handleChange(idx, 'breakFrom', date)}
-                showTimeSelect
-                showTimeSelectOnly
-                dateFormat="HH:mm"
-                timeFormat="HH:mm"
-                timeCaption="Zeit"
-                placeholderText="HH:mm"
-                className="form-control time-input-sm mr-1"
-              />
-              <span>-</span>
-              <DatePicker
-                selected={this.getValue(row.date, 'breakTo')}
-                onChange={date => this.handleChange(idx, 'breakTo', date)}
-                showTimeSelect
-                showTimeSelectOnly
-                dateFormat="HH:mm"
-                timeFormat="HH:mm"
-                timeCaption="Zeit"
-                placeholderText="HH:mm"
-                className="form-control time-input-sm"
-              />
-            </div>
-          </td>
-          <td>
-            <DatePicker
-              selected={this.getValue(row.date, 'to')}
-              onChange={date => this.handleChange(idx, 'to', date)}
-              showTimeSelect
-              showTimeSelectOnly
-              dateFormat="HH:mm"
-              timeFormat="HH:mm"
-              timeCaption="Zeit"
-              placeholderText="HH:mm"
-              className="form-control  time-input"
-            />
-          </td>
-          <td>{`${this.getTotal(row.date)}`}</td>
-        </tr>
-      );
-    });
 
-    return rows;
+    return this.state.rows.map((row, idx) => (
+      <tr key={idx}>
+        <td>
+          <div className="d-flex justify-content-between">
+            <span>{row.date.format('ddd,')}</span>
+            <span>{row.date.format('D. MMM')}</span>
+          </div>
+        </td>
+        <td>
+          <DatePicker
+            selected={this.getValue(row.date, 'from')}
+            onChange={date => this.handleChange(idx, 'from', date)}
+            showTimeSelect
+            showTimeSelectOnly
+            dateFormat="HH:mm"
+            timeFormat="HH:mm"
+            timeCaption="Zeit"
+            placeholderText="HH:mm"
+            className="form-control time-input"
+            disabled={!isLoaded()}
+          />
+        </td>
+        <td>
+          <div className="d-flex align-items-center justify-content-between">
+            <DatePicker
+              selected={this.getValue(row.date, 'breakFrom')}
+              onChange={date => this.handleChange(idx, 'breakFrom', date)}
+              showTimeSelect
+              showTimeSelectOnly
+              dateFormat="HH:mm"
+              timeFormat="HH:mm"
+              timeCaption="Zeit"
+              placeholderText="HH:mm"
+              className="form-control time-input-sm mr-1"
+            />
+            <span>-</span>
+            <DatePicker
+              selected={this.getValue(row.date, 'breakTo')}
+              onChange={date => this.handleChange(idx, 'breakTo', date)}
+              showTimeSelect
+              showTimeSelectOnly
+              dateFormat="HH:mm"
+              timeFormat="HH:mm"
+              timeCaption="Zeit"
+              placeholderText="HH:mm"
+              className="form-control time-input-sm"
+            />
+          </div>
+        </td>
+        <td>
+          <DatePicker
+            selected={this.getValue(row.date, 'to')}
+            onChange={date => this.handleChange(idx, 'to', date)}
+            showTimeSelect
+            showTimeSelectOnly
+            dateFormat="HH:mm"
+            timeFormat="HH:mm"
+            timeCaption="Zeit"
+            placeholderText="HH:mm"
+            className="form-control  time-input"
+          />
+        </td>
+        <td>{`${this.getTotal(row.date)}`}</td>
+      </tr>
+    ));
   };
 
   render() {
     const { currentDate } = this.state;
-
     return (
       <div className="mt-4 container">
         <div className="container-fluid">
@@ -252,13 +247,25 @@ class Timesheet extends Component {
   }
 }
 
-export default compose(
-  firestoreConnect((state, props) => [{ collection: 'timesheet' }]),
-  connect((state, props) => ({
-    timesheet: state.firestore.ordered.timesheet,
-    auth: state.firebase.auth,
+const mapStateToProps = state => {
+  return {
+    timesheet: state.firestore.ordered.timesheet
+      ? state.firestore.ordered.timesheet
+      : [],
+    uid: state.firebase.auth.uid,
     ...{ deleteTime, setTime }
-  }))
+  };
+};
+
+export default compose(
+  connect(
+    mapStateToProps,
+    {}
+  ),
+  firestoreConnect(props => {
+    if (!props.uid) return [];
+    return [{ collection: 'timesheet', where: [['uid', '==', props.uid]] }];
+  })
 )(Timesheet);
 
 Timesheet.contextTypes = {
